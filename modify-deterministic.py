@@ -1,0 +1,98 @@
+import comby
+import sys
+import runmake
+
+# Generate a backup file name in the form of
+# fileName_backup.extension
+def backupFileName(fileName):
+    split = fileName.split(".")
+    nameNoExtension = split[0]
+    extension = split[1]
+    return nameNoExtension + "_backup." + extension
+
+def runTests(program, fileName):
+    # Write to file and run tests
+    with open(fileName, 'w') as file:
+        file.write(program)
+    return runmake.runFullCheck()
+
+# Tries to fix any potential strangeness in syntax
+# from comby pattern matching to statements.
+# e.g. fix an extracted '; if(x) { S;' --> S;
+# Also generally fixes extracted information from '; S;' --> 'S;'
+def fixSyntax(statement):
+    templatesToFix = [';if(:[1]){:[S];',    # if
+                      ';else{:[S];',        # else
+                      ';else if{:[S];',     # else if
+                      'while(:[1]){:[S];',  # while
+                      'for(:[1]){:[S];',    # for
+                      'do(:[1]){:[S];',     # do while
+                      ';:[S];']             # normal
+    templateFixed = ':[S];'
+    fixedStatement = statement
+
+    for t in templatesToFix:
+        fixedStatement = comby.rewrite(fixedStatement, t, templateFixed)
+    
+    return fixedStatement
+
+# Tries to remove a statement from the given program
+# Takes in comby object and the program to modify
+# Returns a tuple of (string, bool) representing
+#             (modified code, success)
+def removeStatement(comby, program, fileName):
+    template = ';:[S];'
+    # Get all matches to generic template from comby
+    matches = comby.match(program, template)
+    
+    # Loop through generic matches and try to remove them,
+    # modifying special cases like if statement and while loop
+    # matches so as to be syntaxtically correct
+    for statement in matches:
+        # Make sure statement is syntactically sound
+        modStatement = fixSyntax(statement)
+        # Remove statement
+        newProgram = comby.rewrite(program, modStatement, '')
+        
+        # If all tests are passed, then return the new program
+        if(runTests(newProgram, fileName)):
+            return (newProgram, True)
+
+    return ("", False)
+
+def main():
+    # Load file
+    fileName = ""
+    currentProgram = ""
+    if(len(sys.argv) > 0):
+        fileName = sys.argv[0]
+    else:
+        raise Exception("No file to modify provided.")
+
+    try:
+        with open(fileName, 'r') as file:
+            currentProgram = file.read(fileName)
+    except:
+        raise Exception("Could not read file " + fileName)
+
+    # Make a copy of the original file as a backup
+    with open(backupFileName(fileName), 'w') as file:
+        file.write(currentProgram)
+
+    # Initialize Comby
+    comby = Comby()
+
+    removeCounter = -1
+    # Try to remove statements until we cannot
+    # i.e., we reached a point where no statements can
+    # be removed fro mthe program and still have it work
+    removed = True
+    while removed:
+        results = removeStatement(comby, currentProgram, fileName)
+        currentProgram = results[0]
+        removed = results[1]
+        removeCounter += 1
+    
+    print("Successfully removed " + removed + " lines of code from " + fileName)
+
+main()
