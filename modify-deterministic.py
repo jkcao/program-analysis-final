@@ -1,13 +1,16 @@
-import comby
+from comby import Comby
 import sys
 import runmake
 
 # Generate a backup file name in the form of
 # fileName_backup.extension
 def backupFileName(fileName):
-    split = fileName.split(".")
-    nameNoExtension = split[0]
-    extension = split[1]
+    split = fileName.split(".", -1)
+    nameNoExtension = ""
+    for n in range(0, len(split) - 1):
+        if(n != 0 or split[n] != ""):
+            nameNoExtension = nameNoExtension + "." + split[n]
+    extension = split[-1]
     return nameNoExtension + "_backup." + extension
 
 def runTests(program, fileName):
@@ -43,12 +46,12 @@ def fixSyntax(statement):
 def removeStatement(comby, program, fileName):
     template = ';:[S];'
     # Get all matches to generic template from comby
-    matches = comby.match(program, template)
+    m = iter(comby.matches(program, template))
     
     # Loop through generic matches and try to remove them,
     # modifying special cases like if statement and while loop
     # matches so as to be syntaxtically correct
-    for statement in matches:
+    for statement in m:
         # Make sure statement is syntactically sound
         modStatement = fixSyntax(statement)
         # Remove statement
@@ -64,14 +67,14 @@ def main():
     # Load file
     fileName = ""
     currentProgram = ""
-    if(len(sys.argv) > 0):
-        fileName = sys.argv[0]
+    if(len(sys.argv) > 1):
+        fileName = sys.argv[1]
     else:
         raise Exception("No file to modify provided.")
 
     try:
         with open(fileName, 'r') as file:
-            currentProgram = file.read(fileName)
+            currentProgram = file.read()
     except:
         raise Exception("Could not read file " + fileName)
 
