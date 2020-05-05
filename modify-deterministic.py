@@ -1,6 +1,7 @@
-from comby import Comby
+import comby
 import sys
 import runmake
+import os
 
 # Generate a backup file name in the form of
 # fileName_backup.extension
@@ -23,7 +24,7 @@ def runTests(program, fileName):
 # from comby pattern matching to statements.
 # e.g. fix an extracted '; if(x) { S;' --> S;
 # Also generally fixes extracted information from '; S;' --> 'S;'
-def fixSyntax(statement):
+def fixSyntax(statement, c):
     templatesToFix = [';if(:[1]){:[S];',    # if
                       ';else{:[S];',        # else
                       ';else if{:[S];',     # else if
@@ -35,7 +36,7 @@ def fixSyntax(statement):
     fixedStatement = statement
 
     for t in templatesToFix:
-        fixedStatement = comby.rewrite(fixedStatement, t, templateFixed)
+        fixedStatement = c.rewrite(fixedStatement, t, templateFixed)
     
     return fixedStatement
 
@@ -43,25 +44,27 @@ def fixSyntax(statement):
 # Takes in comby object and the program to modify
 # Returns a tuple of (string, bool) representing
 #             (modified code, success)
-def removeStatement(comby, program, fileName):
+def removeStatement(c, program, fileName):
     template = ';:[S];'
     # Get all matches to generic template from comby
-    m = iter(comby.matches(program, template))
+    m = iter(c.matches(program, template))
     
     # Loop through generic matches and try to remove them,
     # modifying special cases like if statement and while loop
     # matches so as to be syntaxtically correct
     for statement in m:
         # Make sure statement is syntactically sound
-        modStatement = fixSyntax(statement)
+        modStatement = fixSyntax(statement.matched, c)
+        print("Attempting to remove statement " + modStatement)
         # Remove statement
-        newProgram = comby.rewrite(program, modStatement, '')
+        newProgram = c.rewrite(program, modStatement, '')
         
         # If all tests are passed, then return the new program
         if(runTests(newProgram, fileName)):
+            print("Modified " + fileName + " successfully.\n")
             return (newProgram, True)
 
-    return ("", False)
+    return (program, False)
 
 def main():
     # Load file
@@ -79,11 +82,10 @@ def main():
         raise Exception("Could not read file " + fileName)
 
     # Make a copy of the original file as a backup
-    with open(backupFileName(fileName), 'w') as file:
-        file.write(currentProgram)
+    os.system("cp " + fileName + " " + backupFileName(fileName))
 
     # Initialize Comby
-    comby = Comby()
+    c = comby.Comby()
 
     removeCounter = -1
     # Try to remove statements until we cannot
@@ -91,11 +93,16 @@ def main():
     # be removed fro mthe program and still have it work
     removed = True
     while removed:
-        results = removeStatement(comby, currentProgram, fileName)
+        results = removeStatement(c, currentProgram, fileName)
         currentProgram = results[0]
         removed = results[1]
         removeCounter += 1
+        removed = False
     
-    print("Successfully removed " + removed + " lines of code from " + fileName)
+    # Save new program
+    with open(fileName, 'w') as file:
+        file.write(currentProgram)
+
+    print("\nSuccessfully removed " + str(removeCounter) + " lines of code from " + fileName)
 
 main()
