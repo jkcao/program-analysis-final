@@ -26,18 +26,16 @@ def runTests(program, fileName, testFilePath):
 # e.g. fix an extracted '; if(x) { S;' --> S;
 # Also generally fixes extracted information from '; S;' --> 'S;'
 def fixSyntax(statement, c):
-    templatesToFix = [';if(:[1]){:[S];',    # if
-                      ';else{:[S];',        # else
-                      ';else if{:[S];',     # else if
-                      'while(:[1]){:[S];',  # while
-                      'for(:[1]){:[S];',    # for
-                      'do(:[1]){:[S];',     # do while
+    templatesToFix = [';:[1]{:[S];',    # if
                       ';:[S];']             # normal
     templateFixed = ':[S];'
     fixedStatement = statement
+    previousStatement = ''
 
-    for t in templatesToFix:
-        fixedStatement = c.rewrite(fixedStatement, t, templateFixed)
+    while(fixedStatement != previousStatement):
+        previousStatement = fixedStatement
+        for t in templatesToFix:
+            fixedStatement = c.rewrite(fixedStatement, t, templateFixed)
     
     return fixedStatement
 
@@ -61,7 +59,7 @@ def removeStatement(c, program, fileName, testFilePath):
         newProgram = c.rewrite(program, modStatement, '')
         
         # If all tests are passed, then return the new program
-        if(runTests(newProgram, fileName, testFilePath)):
+        if(newProgram != program and runTests(newProgram, fileName, testFilePath)):
             print("Modified " + fileName + "by removing above statement successfully!\n")
             return (newProgram, True)
 
@@ -108,6 +106,3 @@ def main():
         raise Exception("No file to modify provided.")
     
     startModify(fileName, [])
-    
-
-main()
