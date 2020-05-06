@@ -14,11 +14,11 @@ def backupFileName(fileName):
     extension = split[-1]
     return nameNoExtension + "_backup." + extension
 
-def runTests(program, fileName):
+def runTests(program, fileName, testFilePath):
     # Write to file and run tests
     with open(fileName, 'w') as file:
         file.write(program)
-    return runmake.runFullCheck()
+    return runmake.runPrelimSetFullCheck(testFilePath)
 
 # Tries to fix any potential strangeness in syntax
 # from comby pattern matching to statements.
@@ -44,7 +44,7 @@ def fixSyntax(statement, c):
 # Takes in comby object and the program to modify
 # Returns a tuple of (string, bool) representing
 #             (modified code, success)
-def removeStatement(c, program, fileName):
+def removeStatement(c, program, fileName, testFilePath):
     template = ';:[S];'
     # Get all matches to generic template from comby
     m = iter(c.matches(program, template))
@@ -60,21 +60,14 @@ def removeStatement(c, program, fileName):
         newProgram = c.rewrite(program, modStatement, '')
         
         # If all tests are passed, then return the new program
-        if(runTests(newProgram, fileName)):
+        if(runTests(newProgram, fileName, testFilePath)):
             print("Modified " + fileName + " successfully.\n")
             return (newProgram, True)
 
     return (program, False)
 
-def main():
-    # Load file
-    fileName = ""
+def startModify(fileName, testFilePath):
     currentProgram = ""
-    if(len(sys.argv) > 1):
-        fileName = sys.argv[1]
-    else:
-        raise Exception("No file to modify provided.")
-
     try:
         with open(fileName, 'r') as file:
             currentProgram = file.read()
@@ -93,7 +86,7 @@ def main():
     # be removed fro mthe program and still have it work
     removed = True
     while removed:
-        results = removeStatement(c, currentProgram, fileName)
+        results = removeStatement(c, currentProgram, fileName, testFilePath)
         currentProgram = results[0]
         removed = results[1]
         removeCounter += 1
@@ -105,4 +98,15 @@ def main():
 
     print("\nSuccessfully removed " + str(removeCounter) + " lines of code from " + fileName)
 
-main()
+def main():
+    # Load file
+    fileName = ""
+    if(len(sys.argv) > 1):
+        fileName = sys.argv[1]
+    else:
+        raise Exception("No file to modify provided.")
+    
+    startModify(fileName, [])
+    
+
+#main()
