@@ -9,8 +9,9 @@ def backupFileName(fileName):
     split = fileName.split(".", -1)
     nameNoExtension = ""
     for n in range(0, len(split) - 1):
-        if(n != 0 or split[n] != ""):
-            nameNoExtension = nameNoExtension + "." + split[n]
+        nameNoExtension = nameNoExtension + split[n]
+        if(n != len(split) - 2):
+            nameNoExtension = nameNoExtension + "."
     extension = split[-1]
     return nameNoExtension + "_backup." + extension
 
@@ -61,7 +62,7 @@ def removeStatement(c, program, fileName, testFilePath):
         
         # If all tests are passed, then return the new program
         if(runTests(newProgram, fileName, testFilePath)):
-            print("Modified " + fileName + " successfully.\n")
+            print("Modified " + fileName + "by removing above statement successfully!\n")
             return (newProgram, True)
 
     return (program, False)
@@ -80,7 +81,7 @@ def startModify(fileName, testFilePath):
     # Initialize Comby
     c = comby.Comby()
 
-    removeCounter = -1
+    removeCounter = 0
     # Try to remove statements until we cannot
     # i.e., we reached a point where no statements can
     # be removed fro mthe program and still have it work
@@ -89,8 +90,8 @@ def startModify(fileName, testFilePath):
         results = removeStatement(c, currentProgram, fileName, testFilePath)
         currentProgram = results[0]
         removed = results[1]
-        removeCounter += 1
-        removed = False
+        if removed:
+            removeCounter += 1
     
     # Save new program
     with open(fileName, 'w') as file:
@@ -109,4 +110,4 @@ def main():
     startModify(fileName, [])
     
 
-#main()
+main()
