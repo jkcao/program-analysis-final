@@ -12,6 +12,7 @@ def startModify(fileName, testFilePath):
     # be removed from the program and still have it work
     removed = True
     statements = modifylib.getStatements(currentProgram)
+    print(len(statements))
     while removed:
         results = modifylib.removeSingleStatement(statements, currentProgram, fileName, testFilePath)
         currentProgram = results[0]
