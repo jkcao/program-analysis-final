@@ -5,8 +5,8 @@ import subprocess
 
 
 def main():
-    modifyFilePath = "/home/jan/coreutils/src/ln.c"
-    testFilePath = "/home/jan/coreutils/tests/ln"
+    modifyFilePath = "/home/jan/coreutils/src/touch.c"
+    testFilePath = "/home/jan/coreutils/tests/touch"
 
     # Run make to build all the files (wanna make sure object file exists)
     makeCommand = 'cd /home/jan/coreutils; make'
@@ -23,6 +23,13 @@ def main():
     mdet.startModify(modifyFilePath, testFilePath)
 
     # Get the size of the object file after changes and compare both
+     # Run make to build all the files (wanna make sure object file exists)
+    makeCommand = 'cd /home/jan/coreutils; make'
+    try:
+        subprocess.check_output(makeCommand, shell=True, stderr=subprocess.STDOUT)
+    except subprocess.CalledProcessError:
+        print("Failed to make initial source. Aborting.")
+        return
     newSize = getCompiledByteSize(modifyFilePath)
     print("")
     print("---------------------------------------------------------------------------------")
