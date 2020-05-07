@@ -24,45 +24,50 @@ def runTests(program, fileName, testFilePath):
 
 # 
 def getSubstatements(matches, matchTemplate, writeTemplate, c):
-    statements = []
-    for s in matches:
-        internal = c.rewrite(s.matched, matchTemplate, writeTemplate)
-        substatements = substatements + getStatements(internal, c)
-    return statements
+    try:
+        statements = []
+        for s in matches:
+            if s is None:
+                break
+            internal = c.rewrite(s.matched, matchTemplate, writeTemplate)
+            statements = statements + getStatements(internal, c)
+        return statements
+    except:
+        return []
 
 # Get the substatements of a statement
 def getStatements(program, c):
     statements = []
     # Get all matches to single statements
-    normStmt = iter(c.matches(program, ';:[1];'))
+    normStmt = list(c.matches(program, ";:[1];"))
     # Map single statements format from ;S; --> S;
-    if normStmt != None:
+    try:
         for s in normStmt:
+            if s == None:
+                break
             statements.append(s.matched[1:])
+    except:
+        statements = statements
 
     # Get all matches to if statements
     ifStmt = iter(c.matches(program, 'if(:[1]){:[2]}'))
     # Map if statements to internal statements
-    if ifStmt != None:
-        statements = statements + getSubstatements(ifStmt, "if(:[1]){:[s]}", ":[s]")
+    statements = statements + getSubstatements(ifStmt, "if(:[1]){:[s]}", ":[s]", c)
 
     # Get all matches to else statements
     elseStmt = iter(c.matches(program, 'else{:[2]}'))
     # Map else statements to internal statements
-    if elseStmt != None:
-        statements = statements + getSubstatements(elseStmt, "else{:[s]}", ":[s]")
+    statements = statements + getSubstatements(elseStmt, "else{:[s]}", ":[s]", c)
 
     # Get all matches to while statements
     whileStmt = iter(c.matches(program, 'while(:[1]){:[2]}'))
     # Map while statements to internal statements
-    if whileStmt != None:
-        statements = statements + getSubstatements(whileStmt, "while(:[1]){:[s]}", ":[s]")
+    statements = statements + getSubstatements(whileStmt, "while(:[1]){:[s]}", ":[s]", c)
 
     # Get all matches to for statements
     forStmt = iter(c.matches(program, 'for(:[1]){:[2]}'))
     # Map for statements to internal statements
-    if forStmt != None:
-        statements = statements + getSubstatements(forStmt, "for(:[1]){:[s]}", ":[s]")
+    statements = statements + getSubstatements(forStmt, "for(:[1]){:[s]}", ":[s]", c)
 
     return statements
     
@@ -72,13 +77,11 @@ def getStatements(program, c):
 #             (modified code, success)
 def removeStatement(c, program, fileName, testFilePath):
     statements = getStatements(program, c)
-    print("Generated statements")
     
     # Loop through generic matches and try to remove them,
     # modifying special cases like if statement and while loop
     # matches so as to be syntaxtically correct
     for s in statements:
-        print("Attempting to remove statement " + s)
         # Remove statement
         newProgram = c.rewrite(program, s, '')
         
