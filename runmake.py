@@ -4,13 +4,19 @@ import fnmatch
 import os
 
 def getTestListFromTestDirPath(testDirPath):
-    testList = []
-    for path, subdirs, files in os.walk(testDirPath):
-        for name in files:
-            if fnmatch.fnmatch(name, "*.sh"):
-                testPath = os.path.join(path, name)
-                testList.append(testPath)
-    return testList
+    
+    if(os.path.isfile(testDirPath) == True):
+        return [testDirPath]
+    else:
+        if(os.path.isdir(testDirPath) == True):
+            testList = []
+            for path, subdirs, files in os.walk(testDirPath):
+                for name in files:
+                    if fnmatch.fnmatch(name, "*.sh"):
+                        testPath = os.path.join(path, name)
+                        testList.append(testPath)
+        return testList
+    return []
 
 def runPrelimSetFullCheck(testPaths):
     for testPath in testPaths:
