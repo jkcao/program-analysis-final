@@ -2,9 +2,14 @@ import comby
 import sys
 import runmake
 import os
+import re
 
 # Initialize Comby
 c = comby.Comby()
+
+def getCompiledByteSize(sourcePath):
+    objPath = re.sub("\.c",".o",sourcePath)
+    return os.path.getsize(objPath)
 
 # Generate a backup file name in the form of
 # fileName_backup.extension
@@ -60,10 +65,10 @@ def getSubstatements(matches, matchTemplate, writeTemplate):
 # Get the substatements of a statement
 def getStatements(program):
     statements = []
-    # Get all matches to single statements
-    normStmt = list(c.matches(program, ":[1];"))
-    # Recurse on normal statements
     try:
+        # Get all matches to single statements
+        normStmt = list(c.matches(program, ":[1];"))
+        # Recurse on normal statements
         for s in normStmt:
             if(s.matched != program):
                 try:

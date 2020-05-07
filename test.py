@@ -1,12 +1,13 @@
-import modifydeterministicsingle as mdet
+import modifyrandomsingle as mdet
 import os
 import re
 import subprocess
+import modifylib as lib
 
 
 def main():
-    modifyFilePath = "/home/jan/coreutils/src/touch.c"
-    testFilePath = ["/home/jan/coreutils/tests/touch", "/home/jan/coreutils/tests/misc/help-version.sh", "/home/jan/coreutils/tests/misc/invalid-opt.pl"]
+    modifyFilePath = "/home/jan/coreutils/src/mkdir.c"
+    testFilePath = ["/home/jan/coreutils/tests/mkdir", "/home/jan/coreutils/tests/misc/help-version.sh", "/home/jan/coreutils/tests/misc/invalid-opt.pl"]
 
     # Run make to build all the files (wanna make sure object file exists)
     makeCommand = 'cd /home/jan/coreutils; make'
@@ -17,10 +18,10 @@ def main():
         return
     
     # Get the size of the object file before changes 
-    oldSize = getCompiledByteSize(modifyFilePath)
+    oldSize = lib.getCompiledByteSize(modifyFilePath)
 
     # Make the changes
-    mdet.startModify(modifyFilePath, testFilePath)
+    mdet.startModify(modifyFilePath, testFilePath, 5)
 
     # Get the size of the object file after changes and compare both
      # Run make to build all the files (wanna make sure object file exists)
@@ -30,7 +31,7 @@ def main():
     except subprocess.CalledProcessError:
         print("Failed to make initial source. Aborting.")
         return
-    newSize = getCompiledByteSize(modifyFilePath)
+    newSize = lib.getCompiledByteSize(modifyFilePath)
     print("")
     print("---------------------------------------------------------------------------------")
     print("Old Size= " + str(oldSize) + " bytes")
@@ -38,9 +39,5 @@ def main():
     print("Reduced file size by " + str(oldSize - newSize) + " bytes")
     print("---------------------------------------------------------------------------------")
     print("")
-
-def getCompiledByteSize(sourcePath):
-    objPath = re.sub("\.c",".o",sourcePath)
-    return os.path.getsize(objPath)
 
 main()
