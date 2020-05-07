@@ -7,7 +7,7 @@ import runmake
 import modifylib
 import test
 
-def startModify(fileName, testFilePath, numTries):
+def startModify(fileName, testFilePath, maxRemovals, numTries):
     currentProgram = modifylib.readProgram(fileName)
 
     removeCounter = 0
@@ -30,6 +30,8 @@ def startModify(fileName, testFilePath, numTries):
             if removed:
                 statements.remove(results[1])
                 statements = np.random.permutation(statements)
+                if removeCounter >= maxRemovals and maxRemovals >= 0:
+                    break
         
         # Save new program
         with open(fileName, 'w') as file:

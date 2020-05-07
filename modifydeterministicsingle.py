@@ -3,12 +3,12 @@ import os
 import runmake
 import modifylib
 
-def startModify(fileName, testFilePath):
+def startModify(fileName, testFilePath, maxRemovals):
     currentProgram = modifylib.readProgram(fileName)
 
     # Try to remove statements sequentially
     statements = modifylib.getStatements(currentProgram)
-    results = modifylib.removeStatements(statements, currentProgram, fileName, testFilePath)
+    results = modifylib.removeStatements(statements, currentProgram, fileName, testFilePath, maxRemovals)
     
     # Save new program
     with open(fileName, 'w') as file:

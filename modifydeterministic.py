@@ -3,7 +3,7 @@ import os
 import runmake
 import modifylib
 
-def startModify(fileName, testFilePath):
+def startModify(fileName, testFilePath, maxRemovals):
     currentProgram = modifylib.readProgram(fileName)
 
     removeCounter = 0
@@ -19,6 +19,8 @@ def startModify(fileName, testFilePath):
         if removed:
             statements.remove(results[1])
             removeCounter += 1
+            if removeCounter >= maxRemovals and maxRemovals >= 0:
+                break
     
     # Save new program
     with open(fileName, 'w') as file:

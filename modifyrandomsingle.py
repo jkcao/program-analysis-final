@@ -7,7 +7,7 @@ import runmake
 import modifylib
 
 
-def startModify(fileName, testFilePath, numTries):
+def startModify(fileName, testFilePath, maxRemovals, numTries):
     currentProgram = modifylib.readProgram(fileName)
 
     # Try to remove statements randomly ordered for given number of iterations
@@ -16,7 +16,7 @@ def startModify(fileName, testFilePath, numTries):
     for i in range (0, numTries):
         statements = modifylib.getStatements(currentProgram)
         statements = np.random.permutation(statements)
-        results = modifylib.removeStatements(statements, currentProgram, fileName, testFilePath)
+        results = modifylib.removeStatements(statements, currentProgram, fileName, testFilePath, maxRemovals)
         
         # Save new program
         with open(fileName, 'w') as file:

@@ -122,7 +122,7 @@ def removeSingleStatement(statements, program, fileName, testFilePath):
 
 # Tries to remove each of given statements sequentially
 # Returns a string representing the modified code
-def removeStatements(statements, program, fileName, testFilePath):
+def removeStatements(statements, program, fileName, testFilePath, maxRemovals):
     modProgram = program
     removed = 0
     # Loop through generic matches and try to remove them,
@@ -137,5 +137,7 @@ def removeStatements(statements, program, fileName, testFilePath):
             print("\n=======================================\nModified " + fileName + "by removing statement:\n" + s + "\nsuccessfully!\n=======================================\n\n")
             modProgram = newProgram
             removed += 1
+            if removed >= maxRemovals and maxRemovals >= 0:
+                break
 
     return (modProgram, removed)
