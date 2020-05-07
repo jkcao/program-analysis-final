@@ -46,6 +46,7 @@ def getStatements(program, c):
             if s == None:
                 break
             statements.append(s.matched[1:])
+            statements = statements + getStatements(s.matched[1:], c)
     except:
         statements = statements
 
@@ -75,9 +76,7 @@ def getStatements(program, c):
 # Takes in comby object and the program to modify
 # Returns a tuple of (string, bool) representing
 #             (modified code, success)
-def removeStatement(c, program, fileName, testFilePath):
-    statements = getStatements(program, c)
-    
+def removeStatement(statements, program, fileName, testFilePath, c):
     # Loop through generic matches and try to remove them,
     # modifying special cases like if statement and while loop
     # matches so as to be syntaxtically correct
@@ -87,10 +86,10 @@ def removeStatement(c, program, fileName, testFilePath):
         
         # If all tests are passed, then return the new program
         if(newProgram != program and runTests(newProgram, fileName, testFilePath)):
-            print("Modified " + fileName + "by removing above statement successfully!\n")
-            return (newProgram, True)
+            print("\n=======================================\nModified " + fileName + "by removing statement:\n" + s + "\nsuccessfully!\n=======================================\n\n")
+            return (newProgram, s, True)
 
-    return (program, False)
+    return (program, "", False)
 
 def startModify(fileName, testFilePath):
     currentProgram = ""
@@ -112,16 +111,17 @@ def startModify(fileName, testFilePath):
     # Initialize Comby
     c = comby.Comby()
 
-    print("Starting to attempt removes")
     removeCounter = 0
     # Try to remove statements until we cannot
     # i.e., we reached a point where no statements can
     # be removed from the program and still have it work
     removed = True
+    statements = getStatements(currentProgram, c)
     while removed:
         results = removeStatement(c, currentProgram, fileName, testFilePath)
         currentProgram = results[0]
-        removed = results[1]
+        statements.remove(results[1])
+        removed = results[2]
         if removed:
             removeCounter += 1
     
