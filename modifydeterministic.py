@@ -41,34 +41,32 @@ def getStatements(program, c):
     # Get all matches to single statements
     normStmt = list(c.matches(program, ";:[1];"))
     # Map single statements format from ;S; --> S;
-    try:
-        for s in normStmt:
-            if s == None:
-                break
+    for s in normStmt:
+        try:
             statements.append(s.matched[1:])
             statements = statements + getStatements(s.matched[1:], c)
-    except:
-        statements = statements
+        except:
+            statements = statements
 
     # Get all matches to if statements
-    ifStmt = iter(c.matches(program, 'if(:[1]){:[2]}'))
+    ifStmt = iter(c.matches(program, 'if(:[1]):[3]{:[2]}'))
     # Map if statements to internal statements
-    statements = statements + getSubstatements(ifStmt, "if(:[1]){:[s]}", ":[s]", c)
+    statements = statements + getSubstatements(ifStmt, "if(:[1]):[3]{:[s]}", ":[s]", c)
 
     # Get all matches to else statements
-    elseStmt = iter(c.matches(program, 'else{:[2]}'))
+    elseStmt = iter(c.matches(program, 'else:[3]{:[2]}'))
     # Map else statements to internal statements
-    statements = statements + getSubstatements(elseStmt, "else{:[s]}", ":[s]", c)
+    statements = statements + getSubstatements(elseStmt, "else:[3]{:[s]}", ":[s]", c)
 
     # Get all matches to while statements
-    whileStmt = iter(c.matches(program, 'while(:[1]){:[2]}'))
+    whileStmt = iter(c.matches(program, 'while(:[1]):[3]{:[2]}'))
     # Map while statements to internal statements
-    statements = statements + getSubstatements(whileStmt, "while(:[1]){:[s]}", ":[s]", c)
+    statements = statements + getSubstatements(whileStmt, "while(:[1]):[3]{:[s]}", ":[s]", c)
 
     # Get all matches to for statements
-    forStmt = iter(c.matches(program, 'for(:[1]){:[2]}'))
+    forStmt = iter(c.matches(program, 'for(:[1]):[3]{:[2]}'))
     # Map for statements to internal statements
-    statements = statements + getSubstatements(forStmt, "for(:[1]){:[s]}", ":[s]", c)
+    statements = statements + getSubstatements(forStmt, "for(:[1]):[3]{:[s]}", ":[s]", c)
 
     return statements
     
@@ -118,11 +116,11 @@ def startModify(fileName, testFilePath):
     removed = True
     statements = getStatements(currentProgram, c)
     while removed:
-        results = removeStatement(c, currentProgram, fileName, testFilePath)
+        results = removeStatement(statements, currentProgram, fileName, testFilePath, c)
         currentProgram = results[0]
-        statements.remove(results[1])
         removed = results[2]
         if removed:
+            statements.remove(results[1])
             removeCounter += 1
     
     # Save new program
