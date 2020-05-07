@@ -5,14 +5,14 @@ import numpy as np
 
 import runmake
 import modifylib
-import test
+
 
 def startModify(fileName, testFilePath, maxRemovals, numTries):
     currentProgram = modifylib.readProgram(fileName)
 
     # Try to remove statements randomly ordered for given number of iterations
     bestProgram = currentProgram
-    bestProgramSize = test.getCompiledByteSize(fileName)
+    bestProgramSize = modifylib.getCompiledByteSize(fileName)
     for i in range (0, numTries):
         statements = modifylib.getStatements(currentProgram)
         statements = np.random.permutation(statements)
@@ -23,7 +23,7 @@ def startModify(fileName, testFilePath, maxRemovals, numTries):
             file.write(results[0])
 
         # Check size & update best found so far
-        newSize = test.getCompiledByteSize(fileName)
+        newSize = modifylib.getCompiledByteSize(fileName)
         if(newSize < bestProgramSize):
             bestProgram = currentProgram
             bestProgramSize = newSize
@@ -40,4 +40,4 @@ def main():
     else:
         raise Exception("No file to modify provided.")
     
-    startModify(fileName, [])
+    startModify(fileName, [], 5)
