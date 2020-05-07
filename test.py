@@ -21,7 +21,7 @@ def main():
     oldSize = lib.getCompiledByteSize(modifyFilePath)
 
     # Make the changes
-    mdet.startModify(modifyFilePath, testFilePath, 5)
+    mdet.startModify(modifyFilePath, testFilePath, 5, 1)
 
     # Get the size of the object file after changes and compare both
      # Run make to build all the files (wanna make sure object file exists)
