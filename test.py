@@ -16,6 +16,7 @@ def main():
         print("Failed to make initial source. Aborting.")
         return
     
+    mdet.restoreFromBackup(modifyFilePath)
     # Get the size of the object file before changes 
     oldSize = getCompiledByteSize(modifyFilePath)
 

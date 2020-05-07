@@ -18,6 +18,17 @@ def backupFileName(fileName):
     extension = split[-1]
     return nameNoExtension + "_backup." + extension
 
+def restoreFromBackup(fileName):
+    try:
+        original = ""
+        with open(backupFileName(fileName), 'r') as file:
+            original = file.read()
+        
+        with open(fileName, 'w') as file:
+            file.write(original)
+    except:
+        return
+
 def readProgram(fileName):
     currentProgram = ""
     try:
