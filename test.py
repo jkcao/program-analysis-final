@@ -6,8 +6,8 @@ import modifylib as lib
 
 
 def main():
-    modifyFilePath = "/home/jan/coreutils/src/mkdir.c"
-    testFilePath = ["/home/jan/coreutils/tests/mkdir", "/home/jan/coreutils/tests/misc/help-version.sh", "/home/jan/coreutils/tests/misc/invalid-opt.pl"]
+    modifyFilePath = "/home/jan/coreutils/src/touch.c"
+    testFilePath = ["/home/jan/coreutils/tests/touch", "/home/jan/coreutils/tests/misc/help-version.sh", "/home/jan/coreutils/tests/misc/invalid-opt.pl"]
 
     # Run make to build all the files (wanna make sure object file exists)
     makeCommand = 'cd /home/jan/coreutils; make'
@@ -17,7 +17,7 @@ def main():
         print("Failed to make initial source. Aborting.")
         return
     
-    mdet.restoreFromBackup(modifyFilePath)
+    lib.restoreFromBackup(modifyFilePath)
     # Get the size of the object file before changes 
     oldSize = lib.getCompiledByteSize(modifyFilePath)
 

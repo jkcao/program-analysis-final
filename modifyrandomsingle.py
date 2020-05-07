@@ -25,7 +25,7 @@ def startModify(fileName, testFilePath, maxRemovals, numTries):
         # Check size & update best found so far
         newSize = modifylib.getCompiledByteSize(fileName)
         if(newSize < bestProgramSize):
-            bestProgram = currentProgram
+            bestProgram = results[0]
             bestProgramSize = newSize
 
     # Save final program
