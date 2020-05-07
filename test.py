@@ -6,7 +6,7 @@ import subprocess
 
 def main():
     modifyFilePath = "/home/jan/coreutils/src/touch.c"
-    testFilePath = "/home/jan/coreutils/tests/touch"
+    testFilePath = ["/home/jan/coreutils/tests/touch", "/home/jan/coreutils/tests/misc"]
 
     # Run make to build all the files (wanna make sure object file exists)
     makeCommand = 'cd /home/jan/coreutils; make'

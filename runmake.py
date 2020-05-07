@@ -12,10 +12,11 @@ def getTestListFromTestDirPath(testDirPath):
                 testList.append(testPath)
     return testList
 
-def runPrelimSetFullCheck(testPath):
-    testList = getTestListFromTestDirPath(testPath)
-    if(runSetCheck(testList) is False):
-        return False
+def runPrelimSetFullCheck(testPaths):
+    for testPath in testPaths:
+        testList = getTestListFromTestDirPath(testPath)
+        if(runSetCheck(testList) is False):
+            return False
     return True #runFullCheck()
 
 def runSingleCheck(testPath):
